@@ -13,7 +13,9 @@ import (
 	"os"
 
 	"github.com/go-redis/redis"
+	"github.com/spf13/viper"
 	"strconv"
+	"fmt"
 )
 
 var dhcp_options = []string{"config:dhcp:start", "config:dhcp:leaseDuration", "config:dhcp:leaseRange", "config:dhcp:subnetMask"}
@@ -27,10 +29,24 @@ type DhcpConfig struct {
 
 func main() {
 
+	viper.SetDefault("redisAddr", "127.0.0.1:6379")
+	viper.SetDefault("redisPw", "")
+	viper.SetDefault("redisDb", 0)
+
+	viper.SetConfigName("config")
+	viper.AddConfigPath("/etc/iserv/")
+	viper.AddConfigPath("$HOME/.iserv")
+	viper.AddConfigPath(".")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error reading config file %s \n", err))
+	}
+
 	client := redis.NewClient(&redis.Options{
-		Addr: "192.168.122.219:6379",
-		Password: "",
-		DB: 0,
+		Addr: viper.GetString("redisArr"),
+		Password: viper.GetString("redisPw"),
+		DB: viper.GetInt("redisDb"),
 	})
 
 	settingIp, err := client.Get("config:ip").Result()
