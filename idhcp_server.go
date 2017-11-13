@@ -69,6 +69,7 @@ func main() {
 	dhcpConfig, err := client.MGet(dhcp_options...).Result()
 	var config DhcpConfig
 	if err != redis.Nil {
+		fmt.Println(err)
 		var start net.IP
 		if dhcpConfig[0] != nil {
 			start = net.ParseIP(dhcpConfig[0].(string))
