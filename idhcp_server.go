@@ -44,7 +44,7 @@ func main() {
 	}
 
 	client := redis.NewClient(&redis.Options{
-		Addr: viper.GetString("redisArr"),
+		Addr: viper.GetString("redisAddr"),
 		Password: viper.GetString("redisPw"),
 		DB: viper.GetInt("redisDb"),
 	})
@@ -69,7 +69,6 @@ func main() {
 	dhcpConfig, err := client.MGet(dhcp_options...).Result()
 	var config DhcpConfig
 	if err != redis.Nil {
-		fmt.Println(err)
 		var start net.IP
 		if dhcpConfig[0] != nil {
 			start = net.ParseIP(dhcpConfig[0].(string))
