@@ -189,11 +189,12 @@ func (h *DHCPHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options
 					clientB, ok := options[dhcp.OptionHostName]
 					if ok {
 						client := string(clientB)
-						_, e := h.client.HSet("record:" + client, "type", "A").Result()
+						key := "record:" + reqIP.String() + ":" + client + ":A"
+						_, e := h.client.HSet(key, "type", "A").Result()
 						if  e != nil {
 							log.Fatalln("Could not write to redis", e)
 						}
-						_, e = h.client.HSet("record:" + client, "host", reqIP.String()).Result()
+						_, e = h.client.HSet(key, "host", reqIP.String()).Result()
 						if  e != nil {
 							log.Fatalln("Could not write to redis", e)
 						}
@@ -212,6 +213,7 @@ func (h *DHCPHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options
 
 	case dhcp.Release, dhcp.Decline:
 		nic := p.CHAddr().String()
+		//TODO delete records from database
 		for i, v := range h.leases {
 			if v.nic == nic {
 				delete(h.leases, i)
